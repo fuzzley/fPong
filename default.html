@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width"/>
+    <title>Fuzzley - Pong</title>
+    <link href="content/font_awesome/css/font-awesome.css" rel="stylesheet"/>
+    <link href="content/site.css" rel="stylesheet"/>
+</head>
+<body>
+    <script src="scripts/third_party/phaser.js"></script>
+
+    <script src="scripts/fPong/Game.js"></script>
+    <script src="scripts/fPong/Player.js"></script>
+    <script src="scripts/fPong/Ball.js"></script>
+
+    <script type="text/javascript">
+        var fPong = fPong || {};
+
+        fPong.Page = (function (Page, undefined) {
+            'use strict';
+
+            //fields
+            Page.game = null;
+
+            //functions
+            Page.initialize = function (callback) {
+                Page.game = new fPong.Game();
+
+                if (typeof (callback) === 'function') {
+                    callback.call(this);
+                }
+            };
+
+            return Page;
+        })(fPong.Page || {});
+
+        $(document).on('ready', function () {
+            fPong.Page.initialize();
+        });
+    </script>
+</body>
+</html>
