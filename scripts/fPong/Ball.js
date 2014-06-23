@@ -58,10 +58,11 @@ fPong.Ball = (function (Ball, Phaser, $, ko, undefined) {
     };
 
     Ball.prototype._initAssets = function (startPosition, speed) {
-        this.ball = this.game.add.sprite(startPosition.x, startPosition.y, this.assets.ball);
+        this.ball = this.game.pGame.add.sprite(startPosition.x, startPosition.y, this.assets.ball);
 
-        this.game.physics.enable(this.ball);
+        this.game.pGame.physics.enable(this.ball);
         this.ball.enableBody = true;
+        this.ball.anchor.set(0.5);
         this.ball.body.drag.set(0);
         this.ball.body.bounce.set(1);
         this.ball.body.velocity.x = speed;

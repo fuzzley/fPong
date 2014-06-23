@@ -30,6 +30,7 @@ fPong.Player = (function (Player, Phaser, $, ko, undefined) {
     Player.prototype.game = null;
     Player.prototype.assets = null;
     Player.prototype.paddle = null;
+    Player.prototype.score = 0;
 
     //functions
     //private
@@ -82,12 +83,29 @@ fPong.Player = (function (Player, Phaser, $, ko, undefined) {
             startPosition = { x: 0, y: 0 };
         }
 
-        this.paddle = this.game.add.sprite(startPosition.x, startPosition.y, this.assets.paddle);
+        this.paddle = this.game.pGame.add.sprite(startPosition.x, startPosition.y, this.assets.paddle);
+        this.paddle.anchor.set(0.5);
         this.paddle.inputEnabled = true;
 
-        this.game.physics.enable(this.paddle);
+        this.game.pGame.physics.enable(this.paddle);
         this.paddle.enableBody = true;
         this.paddle.body.immovable = true;
+    };
+
+    Player.prototype.updateAI = function () {
+        var ball = this.game.ball;
+        if (ball == null || ball.ball == null) {
+            return;
+        }
+
+        var distance = Math.abs(ball.ball.x - this.paddle.x);
+        if (distance < this.game.width * .5) {
+            if (this.paddle.y < ball.ball.y - ball.height) {
+                this.velocity.y = this.speed;
+            } else if (this.paddle.y > ball.ball.y + ball.height) {
+                this.velocity.y = -this.speed;
+            }
+        }
     };
 
     //event handlers
@@ -98,9 +116,11 @@ fPong.Player = (function (Player, Phaser, $, ko, undefined) {
         if (this.controlled === true) {
             if (KEYS.UP.isDown && this.position.y > 0) {
                 this.velocity.y = -this.speed;
-            } else if (KEYS.DOWN.isDown && this.position.y + this.height < this.game.height) {
+            } else if (KEYS.DOWN.isDown && this.position.y + this.height < this.game.pGame.height) {
                 this.velocity.y = this.speed;
             }
+        } else {
+            this.updateAI();
         }
     };
 

@@ -28,18 +28,9 @@
 
             //functions
             Page.initialize = function (callback) {
-                var $window = $(window);
-
                 //init game
                 Page.game = new fPong.Game({
-                    width: $window.width(),
-                    height: $window.height(),
                     parent: 'canvas-wrap'
-                });
-
-                //apply "full browser"
-                $window.on('resize', function () {
-                    Page.game.resizeGame($window.width(), $window.height());
                 });
 
                 //tell anyone waiting on us that we are done
