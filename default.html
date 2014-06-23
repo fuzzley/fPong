@@ -8,6 +8,8 @@
     <link href="content/site.css" rel="stylesheet"/>
 </head>
 <body>
+    <div id="canvas-wrap"></div>
+
     <script src="scripts/third_party/jquery-2.1.1.js"></script>
     <script src="scripts/third_party/phaser.js"></script>
 
@@ -26,8 +28,21 @@
 
             //functions
             Page.initialize = function (callback) {
-                Page.game = new fPong.Game();
+                var $window = $(window);
 
+                //init game
+                Page.game = new fPong.Game({
+                    width: $window.width(),
+                    height: $window.height(),
+                    parent: 'canvas-wrap'
+                });
+
+                //apply "full browser"
+                $window.on('resize', function () {
+                    Page.game.resizeGame($window.width(), $window.height());
+                });
+
+                //tell anyone waiting on us that we are done
                 if (typeof (callback) === 'function') {
                     callback.call(this);
                 }

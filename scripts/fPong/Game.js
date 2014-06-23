@@ -4,7 +4,13 @@ fPong.Game = (function (Game, Phaser, $, ko, undefined) {
     'use strict';
 
     //constructor
-    Game = function () {
+    Game = function (settings) {
+        //save settings
+        this.settings = $.extend(true, {}, this.default_settings, settings);
+
+        //set custom properties
+        this._defineProperties();
+
         //init vars
         this.assets = {
             paddle: null,
@@ -12,7 +18,7 @@ fPong.Game = (function (Game, Phaser, $, ko, undefined) {
         };
 
         //create phaser game object
-        this.pGame = new Phaser.Game(Game.WIDTH, Game.HEIGHT, Phaser.AUTO, '', {
+        this.pGame = new Phaser.Game(this.settings.width, this.settings.height, settings.renderer, this.settings.parent, {
             preload: function () {
                 this.preload();
             }.bind(this),
@@ -29,15 +35,23 @@ fPong.Game = (function (Game, Phaser, $, ko, undefined) {
     };
 
     //fields
-    Game.WIDTH = 800;
-    Game.HEIGHT = 600;
-    Game.BALL_SPEED = 450;
+    Game.prototype.default_settings = {
+        width: 800,
+        height: 600,
+        renderer: Phaser.AUTO,
+        parent: '',
+        stageBackground: '#736357',
+        ballSpeed: 450
+    };
+
     Game.Keys = {
         UP: null,
         DOWN: null,
         LEFT: null,
         RIGHT: null
     };
+
+    Game.prototype.settings = null;
 
     Game.prototype.pGame = null;
     Game.prototype.assets = null;
@@ -47,6 +61,21 @@ fPong.Game = (function (Game, Phaser, $, ko, undefined) {
     Game.prototype.ball = null;
 
     //functions
+    //private
+    Game.prototype._defineProperties = function () {
+        Object.defineProperty(this, 'width', {
+            get: function () {
+                return this.pGame.width;
+            }
+        });
+
+        Object.defineProperty(this, 'height', {
+            get: function () {
+                return this.pGame.height;
+            }
+        });
+    };
+
     Game.prototype._loadAssets = function () {
         this._createPaddle();
         this._createBall();
@@ -81,32 +110,38 @@ fPong.Game = (function (Game, Phaser, $, ko, undefined) {
     };
 
     Game.prototype._initPlayers = function () {
-        this.player1 = new fPong.Player(this.pGame, {
+        this.player1 = new fPong.Player(this.pGame, this.assets.paddle, {
             name: 'Player 1',
             controlled: true,
-            startPosition: { x: 10, y: Game.HEIGHT / 2 - this.assets.paddle.height / 2 },
-            speed: 250,
-            paddle: this.assets.paddle
+            startPosition: {
+                x: 10,
+                y: this.height / 2 - this.assets.paddle.height / 2
+            },
+            speed: 250
         });
-        this.player2 = new fPong.Player(this.pGame, {
+        this.player2 = new fPong.Player(this.pGame, this.assets.paddle, {
             name: 'Player 2',
             controlled: false,
-            startPosition: { x: Game.WIDTH - this.assets.paddle.width - 10, y: Game.HEIGHT / 2 - this.assets.paddle.height / 2 },
-            speed: 250,
-            paddle: this.assets.paddle
+            startPosition: {
+                x: this.width - this.assets.paddle.width - 10,
+                y: this.height / 2 - this.assets.paddle.height / 2
+            },
+            speed: 250
         });
     };
 
     Game.prototype._initBall = function () {
-        this.ball = new fPong.Ball(this.pGame, {
-            startPosition: { x: Game.WIDTH / 2 - this.assets.ball.width / 2, y: Game.HEIGHT / 2 - this.assets.ball.height / 2 },
-            speed: Game.BALL_SPEED,
-            ball: this.assets.ball
+        this.ball = new fPong.Ball(this.pGame, this.assets.ball, {
+            startPosition: {
+                x: this.width / 2 - this.assets.ball.width / 2,
+                y: this.height / 2 - this.assets.ball.height / 2
+            },
+            speed: this.settings.ballSpeed
         });
     };
 
     Game.prototype._initStage = function () {
-        this.pGame.stage.backgroundColor = '#736357';
+        this.pGame.stage.backgroundColor = this.settings.stageBackground;
     };
 
     Game.prototype._captureKeys = function () {
@@ -114,6 +149,24 @@ fPong.Game = (function (Game, Phaser, $, ko, undefined) {
         Game.Keys.DOWN = this.pGame.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         Game.Keys.LEFT = this.pGame.input.keyboard.addKey(Phaser.Keyboard.LEFT);
         Game.Keys.RIGHT = this.pGame.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+    };
+
+    Game.prototype._updatePositions = function () {
+        this.player2.paddle.x = this.width - this.player2.width - 10;
+    };
+
+    //public
+    Game.prototype.resizeGame = function (width, height) {
+        this.pGame.width = width;
+        this.pGame.height = height;
+        this.pGame.stage.bounds.width = width;
+        this.pGame.stage.bounds.height = height;
+
+        if (this.pGame.renderType === Phaser.WEBGL) {
+            this.pGame.renderer.resize(width, height);
+        }
+
+        this._updatePositions();
     };
 
     //event handlers
@@ -143,10 +196,8 @@ fPong.Game = (function (Game, Phaser, $, ko, undefined) {
         this.player1.update();
         this.player2.update();
 
-        if (this.pGame.physics.arcade.collide(this.ball.ball, this.player1.paddle) 
-            || this.pGame.physics.arcade.collide(this.ball.ball, this.player2.paddle)) {
-            //this.ball.invertVelocityX();
-        }
+        this.pGame.physics.arcade.collide(this.ball.ball, this.player1.paddle);
+        this.pGame.physics.arcade.collide(this.ball.ball, this.player2.paddle);
     };
 
     Game.prototype.render = function () {

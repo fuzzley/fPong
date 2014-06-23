@@ -4,34 +4,79 @@ fPong.Player = (function (Player, Phaser, $, ko, undefined) {
     'use strict';
 
     //constructor
-    Player = function (game, options) {
-        if (options == null) {
-            options = {};
-        }
+    Player = function (game, paddle, settings) {
+        this.settings = $.extend(true, {}, this.default_settings, settings);
 
-        //options = { name, controlled, startPosition, speed, paddle }
         this.game = game;
-        this.name = options.name || '';
-        this.controlled = options.controlled || false;
-        this.speed = options.speed || 1;
-
         this.assets = {
-            paddle: options.paddle
+            paddle: paddle
         };
 
-        this._initAssets(options.startPosition);
+        this._defineProperties();
+        this._initAssets(this.settings.startPosition);
     };
 
     //fields
+    Player.prototype.default_settings = {
+        name: 'Player',
+        controlled: false,
+        startPosition: { x: 0, y: 0 },
+        speed: 1
+    };
+
+    Player.prototype.settings = null;
+
     Player.prototype.gutter = null;
     Player.prototype.game = null;
-    Player.prototype.name = '';
-    Player.prototype.controlled = false;
-    Player.prototype.speed = 1;
     Player.prototype.assets = null;
     Player.prototype.paddle = null;
 
     //functions
+    //private
+    Player.prototype._defineProperties = function () {
+        Object.defineProperty(this, 'name', {
+            get: function () {
+                return this.settings.name;
+            }
+        });
+
+        Object.defineProperty(this, 'controlled', {
+            get: function () {
+                return this.settings.controlled;
+            }
+        });
+
+        Object.defineProperty(this, 'speed', {
+            get: function () {
+                return this.settings.speed;
+            }
+        });
+
+        Object.defineProperty(this, 'position', {
+            get: function () {
+                return this.paddle.body.position;
+            }
+        });
+
+        Object.defineProperty(this, 'velocity', {
+            get: function () {
+                return this.paddle.body.velocity;
+            }
+        });
+
+        Object.defineProperty(this, 'width', {
+            get: function () {
+                return this.paddle.body.width;
+            }
+        });
+
+        Object.defineProperty(this, 'height', {
+            get: function () {
+                return this.paddle.body.height;
+            }
+        });
+    };
+
     Player.prototype._initAssets = function (startPosition) {
         if (startPosition == null) {
             startPosition = { x: 0, y: 0 };
@@ -47,12 +92,14 @@ fPong.Player = (function (Player, Phaser, $, ko, undefined) {
 
     //event handlers
     Player.prototype.update = function () {
+        var KEYS = fPong.Game.Keys;
+
         this.paddle.body.velocity.y = 0;
         if (this.controlled === true) {
-            if (fPong.Game.Keys.UP.isDown) {
-                this.paddle.body.velocity.y = -this.speed;
-            } else if (fPong.Game.Keys.DOWN.isDown) {
-                this.paddle.body.velocity.y = this.speed;
+            if (KEYS.UP.isDown && this.position.y > 0) {
+                this.velocity.y = -this.speed;
+            } else if (KEYS.DOWN.isDown && this.position.y + this.height < this.game.height) {
+                this.velocity.y = this.speed;
             }
         }
     };
