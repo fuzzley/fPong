@@ -22,7 +22,7 @@ fPong.Game = (function (Game, Phaser, $, ko, undefined) {
             this.settings.stage.width,
             this.settings.stage.height,
             this.settings.engine.renderer,
-            this.settings.stage.parent, {
+            this.settings.stage.parent || this.settings.parent || '', {
                 preload: function () {
                     this.preload();
                 }.bind(this),

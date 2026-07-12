@@ -13,7 +13,9 @@ fPong.Page = (function (Page) {
     Page.initialize = function (callback) {
         //init game
         Page.game = new fPong.Game({
-            parent: 'canvas-wrap'
+            stage: {
+                parent: 'canvas-wrap'
+            }
         });
 
         //tell anyone waiting on us that we are done
