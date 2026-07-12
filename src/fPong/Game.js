@@ -1,4 +1,4 @@
-﻿var fPong = fPong || {};
+import { fPong } from "../fPong.namespace.js";
 
 fPong.Game = (function (Game, Phaser, $, ko, undefined) {
     'use strict';

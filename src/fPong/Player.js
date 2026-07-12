@@ -1,4 +1,4 @@
-﻿var fPong = fPong || {};
+import { fPong } from "../fPong.namespace.js";
 
 fPong.Player = (function (Player, Phaser, $, ko, undefined) {
     'use strict';
