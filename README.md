@@ -1,6 +1,6 @@
 Just a simple Pong clone, written in javascript. 
 The project utilizes [Phaser](http://phaser.io/) as the game engine.
-The [latest version of the game](http://fuzzley.info/project/pong/) is hosted on http://fuzzley.info/project/pong/.
+The [latest version of the game](https://fuzzley.info/projects/pong/play/) is hosted on https://fuzzley.info/projects/pong/play/.
 
 Have fun!
 
