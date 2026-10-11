@@ -1,19 +1,18 @@
-name: Build and Sync to Main Website
+name: Build and publish to fuzzley.info
+
+# Every push to main builds the game and publishes it to this repository's
+# site-build release. fuzzley/fuzzley fetches it from there: a scheduled
+# workflow in that repository moves its pin to the newest build within about
+# 15 minutes, and fuzzley.info redeploys.
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      force:
-        description: "Force deployment even if there are no changes"
-        required: false
-        type: boolean
-        default: false
 
 jobs:
-  build-and-sync:
+  build-and-publish:
     runs-on: ubuntu-latest
     # Moves the site-build tag and uploads to its release.
     permissions:
@@ -90,37 +89,3 @@ jobs:
                   gh release delete-asset "$TAG" "$old" --yes
                 fi
               done
-
-      - name: Configure git credentials
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Sync built assets to fuzzley/fuzzley
-        env:
-          PAT_TOKEN: ${{ secrets.MAIN_REPO_DEPLOY_PAT }}
-          FORCE_DEPLOY: ${{ github.event.inputs.force }}
-        run: |
-          # 1. Clone the main website repository (fuzzley/fuzzley)
-          git clone --depth 1 https://x-access-token:${{ env.PAT_TOKEN }}@github.com/fuzzley/fuzzley.git main-website
-
-          # 2. Define the destination folder in the website repo
-          DEST_DIR="main-website/frontend/public/projects/pong/play"
-
-          # 3. Clean out any old files
-          rm -rf "$DEST_DIR"
-          mkdir -p "$DEST_DIR"
-
-          # 4. Copy new build files
-          cp -r dist/* "$DEST_DIR"/
-
-          # 5. Commit and push the updates if there are changes
-          cd main-website
-          git add .
-
-          if git diff-index --quiet HEAD && [ "$FORCE_DEPLOY" != "true" ]; then
-            echo "No changes in fPong production build. Skipping commit."
-          else
-            git commit --allow-empty -m "chore(deploy): sync fPong production build from fuzzley/fPong@${{ github.sha }}"
-            git push origin HEAD
-          fi
