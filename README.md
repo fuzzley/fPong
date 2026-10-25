@@ -1,4 +1,4 @@
-Just a simple Pong clone, written in javascript. 
+Just a simple Pong clone, written in javascript.
 The project utilizes [Phaser](http://phaser.io/) as the game engine.
 The [latest version of the game](https://fuzzley.info/projects/pong/play/) is hosted on https://fuzzley.info/projects/pong/play/.
 
@@ -19,3 +19,6 @@ yarn lint        # run ESLint
 yarn prettier    # format the code with Prettier
 ```
 
+## License
+
+This project source code is licensed under the [GNU General Public License v3.0 or later](LICENSE).
